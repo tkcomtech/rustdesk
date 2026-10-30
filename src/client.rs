@@ -3858,6 +3858,7 @@ impl LoginConfigHandler {
             os_login,
             hwid,
             avatar,
+            tk_ns: crate::tk::local_namespace(),
             ..Default::default()
         };
         match self.conn_type {

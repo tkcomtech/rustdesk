@@ -2853,6 +2853,15 @@ impl Connection {
         }
     }
 
+    async fn check_tk_namespace(&mut self, lr: &LoginRequest) -> bool {
+        if crate::tk::is_namespace_allowed(&lr.tk_ns) {
+            return true;
+        }
+        log::warn!("Login from {} rejected: namespace not allowed", self.ip);
+        self.send_login_error("Namespace not allowed").await;
+        false
+    }
+
     async fn handle_login_request_without_validation(&mut self, lr: &LoginRequest) {
         self.lr = lr.clone();
         self.peer_argb = crate::str2color(&format!("{}{}", &lr.my_id, &lr.my_platform), 0xff);
@@ -2910,6 +2919,9 @@ impl Connection {
         // After handling CloseReason messages, proceed to process other message types
         if let Some(message::Union::LoginRequest(lr)) = msg.union {
             if !self.check_login_scope(&lr).await {
+                return false;
+            }
+            if !self.check_tk_namespace(&lr).await {
                 return false;
             }
             self.awaiting_2fa = false;
