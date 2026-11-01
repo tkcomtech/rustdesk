@@ -301,9 +301,11 @@ jobs:
         shell: bash
         run: |
           sed -i '/dpiAware/d' res/manifest.xml
+          # The installer looks for <app-name>.exe, so the binary must match custom.txt's app-name.
+          mv ./rustdesk/rustdesk.exe ./rustdesk/TKRemote.exe
           pushd ./libs/portable
           pip3 install -r requirements.txt
-          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
+          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/TKRemote.exe
           popd
           mkdir -p ./TKOutput
           mv ./target/release/rustdesk-portable-packer.exe ./TKOutput/tkremote-${VARIANT}-${VERSION}-x86_64.exe
